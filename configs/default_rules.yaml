@@ -1,0 +1,67 @@
+# Default organisation rules. Shipped with the app and used until the user
+# saves their own rules to user_rules.yaml. Category order is priority order.
+#
+# Each category has a destination folder and a list of conditions; "match"
+# decides how they combine: all | any | none. A condition tests one of:
+#   - field: extension   value: comma-separated extensions
+#   - field: name / path operator: contains | starts_with | ends_with | equals
+
+# Folder watched for new files and where matched files are moved. Both are
+# empty until set in the Rules tab. recursive includes subfolders.
+watch:
+  directory: ""
+  output: ""
+  recursive: true
+
+format_rules:
+  categories:
+    - name: Images
+      folder: Images
+      match: any
+      conditions:
+        - {field: extension, value: "jpg, jpeg, png, gif, bmp, webp, svg, tiff, heic"}
+      icon: ""
+    - name: Documents
+      folder: Documents
+      match: any
+      conditions:
+        - {field: extension, value: "pdf, doc, docx, txt, odt, rtf, md"}
+      icon: ""
+    - name: Spreadsheets
+      folder: Spreadsheets
+      match: any
+      conditions:
+        - {field: extension, value: "xls, xlsx, csv, ods"}
+      icon: ""
+    - name: Presentations
+      folder: Presentations
+      match: any
+      conditions:
+        - {field: extension, value: "ppt, pptx, odp"}
+      icon: ""
+    - name: Videos
+      folder: Videos
+      match: any
+      conditions:
+        - {field: extension, value: "mp4, mkv, mov, avi, wmv, webm, flv"}
+      icon: ""
+    - name: Audio
+      folder: Audio
+      match: any
+      conditions:
+        - {field: extension, value: "mp3, wav, flac, aac, ogg, m4a"}
+      icon: ""
+    - name: Archives
+      folder: Archives
+      match: any
+      conditions:
+        - {field: extension, value: "zip, rar, 7z, tar, gz, bz2"}
+      icon: ""
+
+# Optional ordering of matched files: mode none | date | name.
+# order applies when a mode is chosen: asc | desc.
+# date_granularity applies when mode is "date": year | month | day.
+sort:
+  mode: none
+  order: asc
+  date_granularity: month
