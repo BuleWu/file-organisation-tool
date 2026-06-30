@@ -14,6 +14,17 @@ Built for Windows. Free. No Python or setup required — just download and run.
 
 > Current release: **v1.0.0**
 
+### First run on Windows
+
+The app isn't code-signed yet, so the first time you run it Windows SmartScreen
+may show a **"Windows protected your PC"** dialog. This is expected for new,
+unsigned apps and doesn't mean anything is wrong. To continue:
+
+1. Click **More info**.
+2. Click **Run anyway**.
+
+You only need to do this once. (Code signing to remove the prompt is planned.)
+
 ---
 
 ## What it does
