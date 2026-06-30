@@ -145,6 +145,8 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+# but track this app's build spec, used by the release workflow
+!FileOrganiser.spec
 
 # Installer logs
 pip-log.txt
