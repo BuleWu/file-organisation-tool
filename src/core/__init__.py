@@ -1,1 +1,1 @@
-"""Core layer: filesystem watching and (later) classification and moves."""
+"""Core layer: filesystem watching, classification, and moves."""

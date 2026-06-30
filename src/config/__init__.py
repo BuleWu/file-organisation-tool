@@ -1,1 +1,1 @@
-"""Configuration layer: YAML loading and merging of organisation rules."""
+"""Configuration layer: load and save organisation rules as YAML."""

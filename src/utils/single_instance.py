@@ -1,8 +1,4 @@
-"""Single-instance guard + activation over a loopback socket.
-
-The first instance binds a fixed loopback port; a later launch fails to bind,
-pings the running instance to surface its window, and exits.
-"""
+"""Single-instance guard + activation over a loopback socket."""
 import logging
 import socket
 import threading

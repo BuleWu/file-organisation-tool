@@ -1,8 +1,4 @@
-"""Project paths: bundled (read-only) resources vs the writable per-user dir.
-
-Works both from source and from a frozen PyInstaller build, where resources live
-under ``sys._MEIPASS`` and the install dir is read-only.
-"""
+"""Project paths: bundled resources vs the writable per-user dir, frozen-aware."""
 import os
 import sys
 from pathlib import Path
