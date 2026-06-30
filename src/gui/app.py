@@ -1,4 +1,5 @@
 """Main window and tab wiring."""
+import logging
 import queue
 import threading
 from pathlib import Path
@@ -28,6 +29,8 @@ class App(customtkinter.CTk):
         self._tray: TrayIcon | None = None
         self._pending_queue: queue.Queue = queue.Queue()
         self._conflict_queue: queue.Queue = queue.Queue()
+        self._activate_queue: queue.Queue = queue.Queue()
+        self.report_callback_exception = self._on_gui_error
 
         self.title("File organiser")
         self.iconbitmap(ICON_PATH)
@@ -70,6 +73,7 @@ class App(customtkinter.CTk):
 
         # resolve visible conflicts on the GUI thread (Tkinter is single-threaded)
         self.after(100, self._poll_conflicts)
+        self.after(150, self._poll_activate)
 
         # close hides to the tray; Quit exits
         self._tray_queue: queue.Queue = queue.Queue()
@@ -144,6 +148,29 @@ class App(customtkinter.CTk):
                 decision = self._conflict_dialog(target)
                 self.service.organise_with_decision(source, decision)
         except queue.Empty:
+            pass
+
+    def request_show(self, *_args) -> None:
+        """Thread-safe request to surface the window (from the single-instance server)."""
+        self._activate_queue.put(True)
+
+    def _poll_activate(self) -> None:
+        if not self._alive:
+            return
+        try:
+            while True:
+                self._activate_queue.get_nowait()
+                self._show_window()
+        except queue.Empty:
+            pass
+        self.after(150, self._poll_activate)
+
+    def _on_gui_error(self, exc, val, tb) -> None:
+        """Log an unhandled GUI-callback error and show a dialog instead of dying."""
+        logging.getLogger("src").error("GUI error", exc_info=(exc, val, tb))
+        try:
+            messagebox.showerror("File organiser", f"An unexpected error occurred:\n{val}")
+        except Exception:  # never let the error reporter crash the app
             pass
 
     def _hide_to_tray(self) -> None:

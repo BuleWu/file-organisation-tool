@@ -4,10 +4,7 @@ from pathlib import Path
 import yaml
 
 from src.config.rules import RulesConfig
-from src.utils.paths import CONFIG_DIR
-
-DEFAULT_RULES_PATH = CONFIG_DIR / "default_rules.yaml"
-USER_RULES_PATH = CONFIG_DIR / "user_rules.yaml"
+from src.utils.paths import DEFAULT_RULES_PATH, USER_RULES_PATH
 
 
 def _read_yaml(path: Path):

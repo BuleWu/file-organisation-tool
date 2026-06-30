@@ -1,6 +1,29 @@
-"""Project paths resolved from the source location, so the app runs from any cwd."""
+"""Project paths: bundled (read-only) resources vs the writable per-user dir.
+
+Works both from source and from a frozen PyInstaller build, where resources live
+under ``sys._MEIPASS`` and the install dir is read-only.
+"""
+import os
+import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-CONFIG_DIR = PROJECT_ROOT / "configs"
-WINDOW_ICON = PROJECT_ROOT / "assets" / "icons" / "folder.ico"
+if getattr(sys, "frozen", False):
+    RESOURCE_ROOT = Path(sys._MEIPASS)  # PyInstaller extraction dir
+else:
+    RESOURCE_ROOT = Path(__file__).resolve().parents[2]
+
+WINDOW_ICON = RESOURCE_ROOT / "assets" / "icons" / "folder.ico"
+DEFAULT_RULES_PATH = RESOURCE_ROOT / "configs" / "default_rules.yaml"
+
+
+def _user_data_dir() -> Path:
+    """A writable per-user directory for config and logs."""
+    if sys.platform == "win32":
+        base = os.environ.get("APPDATA") or Path.home() / "AppData" / "Roaming"
+        return Path(base) / "FileOrganiser"
+    return Path.home() / ".file-organiser"
+
+
+USER_DATA_DIR = _user_data_dir()
+USER_RULES_PATH = USER_DATA_DIR / "user_rules.yaml"
+LOG_FILE = USER_DATA_DIR / "file-organiser.log"
