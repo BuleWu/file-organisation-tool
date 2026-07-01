@@ -1,4 +1,5 @@
 """Reusable customtkinter widgets."""
+import webbrowser
 from tkinter import TclError
 
 import customtkinter
@@ -202,6 +203,34 @@ def _format_plan(result: dict, watched: str, output: str) -> str:
     if result.get("sorted"):
         lines.append("Sorting is on — files in each folder will also be renumbered (NNN_).")
     return "\n".join(lines)
+
+
+class UpdateDialog(_IconDialog):
+    """Prompt to open the download page when a newer release is available."""
+
+    def __init__(self, master, current: str, latest: str, url: str, icon_path=ICON_PATH) -> None:
+        super().__init__(master, "Update available", icon_path)
+        self.resizable(False, False)
+        self._url = url
+        self.grid_columnconfigure((0, 1), weight=1)
+
+        message = (
+            "A new version of File Organiser is available.\n\n"
+            f"You have:  v{current}\nLatest:      v{latest}"
+        )
+        customtkinter.CTkLabel(self, text=message, justify="left").grid(
+            row=0, column=0, columnspan=2, padx=20, pady=(20, 16), sticky="w"
+        )
+        customtkinter.CTkButton(self, text="Update", command=self._update).grid(
+            row=1, column=0, padx=(20, 6), pady=(0, 20), sticky="ew"
+        )
+        customtkinter.CTkButton(
+            self, text="Cancel", fg_color="gray40", hover_color="gray30", command=self.destroy
+        ).grid(row=1, column=1, padx=(6, 20), pady=(0, 20), sticky="ew")
+
+    def _update(self) -> None:
+        webbrowser.open(self._url)
+        self.destroy()
 
 
 class SimulationDialog(_IconDialog):

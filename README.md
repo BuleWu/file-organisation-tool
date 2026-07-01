@@ -12,7 +12,7 @@ Built for Windows. Free. No Python or setup required — just download and run.
 
 **[⬇️ Download the latest release](https://github.com/BuleWu/file-organisation-tool/releases/latest)** — grab `FileOrganiser.exe` and run it. That's it.
 
-> Current release: **v1.0.0**
+[![Latest release](https://img.shields.io/github/v/release/BuleWu/file-organisation-tool?label=latest%20version)](https://github.com/BuleWu/file-organisation-tool/releases/latest)
 
 ### First run on Windows
 
