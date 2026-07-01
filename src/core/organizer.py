@@ -76,6 +76,25 @@ def _renumber(folder: Path, mode: str, order: str) -> None:
         temp.rename(folder / f"{index:03d}_{base}")
 
 
+def _existing_conflict(dest_dir: Path, name: str, numbered: bool) -> Path | None:
+    """Return an existing file in ``dest_dir`` that clashes with ``name``, else None.
+
+    With numbering on, existing files carry an ``NNN_`` prefix, so match on the
+    base name; otherwise only an exact-name collision counts.
+    """
+    target = dest_dir / name
+    if target.exists():
+        return target
+    if not numbered:
+        return None
+    base = _NUMBER_PREFIX.sub("", name).lower()
+    for path in dest_dir.iterdir():
+        if path.is_file() and path.name.lower() not in _SKIP_NAMES:
+            if _NUMBER_PREFIX.sub("", path.name).lower() == base:
+                return path
+    return None
+
+
 def organise_file(
     path: Path,
     rules: RulesConfig,
@@ -109,11 +128,12 @@ def organise_file(
     if category.icon:
         apply_folder_icon(dest_dir, category.icon)
 
-    target = dest_dir / path.name
-    if not target.exists():
-        destination = target
+    numbered = rules.sort.mode != "none"
+    existing = _existing_conflict(dest_dir, path.name, numbered)
+    if existing is None:
+        destination = dest_dir / path.name
     else:
-        decision = on_conflict(path, target) if on_conflict else "rename"
+        decision = on_conflict(path, dest_dir / path.name) if on_conflict else "rename"
         if decision == "defer":
             logger.info("deferred %s (conflict in %s/)", path.name, category.folder)
             return None
@@ -122,13 +142,13 @@ def organise_file(
             return None
         if decision == "overwrite":
             try:
-                target.unlink()
+                existing.unlink()
             except OSError as exc:
-                logger.warning("could not overwrite %s: %s", target, exc)
+                logger.warning("could not overwrite %s: %s", existing, exc)
                 return None
-            destination = target
+            destination = dest_dir / path.name
         else:  # "rename": keep both
-            destination = _unique_destination(target)
+            destination = _unique_destination(dest_dir / path.name)
 
     try:
         size = path.stat().st_size
