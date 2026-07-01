@@ -14,9 +14,11 @@ from src.gui.control_tab import ControlTab
 from src.gui.logs_tab import LogsTab
 from src.gui.rules_tab import RulesTab
 from src.gui.tray import TRAY_AVAILABLE, TrayIcon
-from src.gui.widgets import ICON_PATH, ConflictDialog, Snackbar
+from src.gui.widgets import ICON_PATH, ConflictDialog, Snackbar, UpdateDialog
 from src.service.service import OrganiserService
 from src.utils import autostart
+from src.utils.updates import check_for_update
+from src.version import VERSION
 
 
 class App(customtkinter.CTk):
@@ -30,9 +32,10 @@ class App(customtkinter.CTk):
         self._pending_queue: queue.Queue = queue.Queue()
         self._conflict_queue: queue.Queue = queue.Queue()
         self._activate_queue: queue.Queue = queue.Queue()
+        self._update_queue: queue.Queue = queue.Queue()
         self.report_callback_exception = self._on_gui_error
 
-        self.title("File organiser")
+        self.title(f"File organiser v{VERSION}")
         self.iconbitmap(ICON_PATH)
         self.geometry("640x760")
 
@@ -89,6 +92,10 @@ class App(customtkinter.CTk):
             if start_hidden:
                 self.withdraw()
                 self._hidden = True
+
+        # check GitHub for a newer release, off the GUI thread
+        threading.Thread(target=self._check_updates, daemon=True).start()
+        self.after(1000, self._poll_updates)
 
     def _build_rules_view(self) -> None:
         """(Re)create the Rules tab from the current config (e.g. after import)."""
@@ -164,6 +171,29 @@ class App(customtkinter.CTk):
         except queue.Empty:
             pass
         self.after(150, self._poll_activate)
+
+    def _check_updates(self) -> None:
+        info = check_for_update()
+        if info:
+            self._update_queue.put(info)
+
+    def _poll_updates(self) -> None:
+        if not self._alive:
+            return
+        try:
+            while True:
+                current, latest, url = self._update_queue.get_nowait()
+                if self._hidden:
+                    if self._tray is not None:
+                        self._tray.notify(
+                            f"Version v{latest} is available (you have v{current}).",
+                            "Update available",
+                        )
+                else:
+                    UpdateDialog(self, current, latest, url)
+        except queue.Empty:
+            pass
+        self.after(1000, self._poll_updates)
 
     def _on_gui_error(self, exc, val, tb) -> None:
         """Log an unhandled GUI-callback error and show a dialog instead of dying."""

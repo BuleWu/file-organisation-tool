@@ -23,6 +23,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pyinstaller
 
+      - name: Stamp version from tag
+        shell: bash
+        run: printf '"""Application version (set from the release tag)."""\nVERSION = "%s"\n' "${GITHUB_REF_NAME#v}" > src/version.py
+
       - name: Build executable
         run: pyinstaller --noconfirm --clean FileOrganiser.spec
 
