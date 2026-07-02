@@ -208,10 +208,13 @@ def _format_plan(result: dict, watched: str, output: str) -> str:
 class UpdateDialog(_IconDialog):
     """Prompt to open the download page when a newer release is available."""
 
-    def __init__(self, master, current: str, latest: str, url: str, icon_path=ICON_PATH) -> None:
+    def __init__(
+        self, master, current: str, latest: str, url: str, on_update=None, icon_path=ICON_PATH
+    ) -> None:
         super().__init__(master, "Update available", icon_path)
         self.resizable(False, False)
         self._url = url
+        self._on_update = on_update
         self.grid_columnconfigure((0, 1), weight=1)
 
         message = (
@@ -231,6 +234,8 @@ class UpdateDialog(_IconDialog):
     def _update(self) -> None:
         webbrowser.open(self._url)
         self.destroy()
+        if self._on_update is not None:
+            self._on_update()
 
 
 class SimulationDialog(_IconDialog):

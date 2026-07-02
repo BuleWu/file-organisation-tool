@@ -8,6 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.gui.app import App  # noqa: E402
+from src.utils import autostart  # noqa: E402
 from src.utils.paths import LOG_FILE, USER_DATA_DIR  # noqa: E402
 from src.utils.single_instance import SingleInstance  # noqa: E402
 
@@ -36,6 +37,9 @@ def main() -> None:
     if not instance.acquire():
         logging.getLogger("src").info("another instance is already running; exiting")
         return
+
+    if autostart.is_enabled():
+        autostart.enable()  # re-point the startup entry at this exe (its path changes per version)
 
     app = App(start_hidden="--startup" in sys.argv)
     instance.on_activate = app.request_show
