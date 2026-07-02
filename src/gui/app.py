@@ -190,10 +190,19 @@ class App(customtkinter.CTk):
                             "Update available",
                         )
                 else:
-                    UpdateDialog(self, current, latest, url)
+                    UpdateDialog(self, current, latest, url, on_update=self._finish_update)
         except queue.Empty:
             pass
         self.after(1000, self._poll_updates)
+
+    def _finish_update(self) -> None:
+        if messagebox.askokcancel(
+            "Restart needed",
+            "The download page has opened in your browser.\n\n"
+            "A restart is needed for the update to take effect. Close File Organiser now "
+            "so you can run the new version?",
+        ):
+            self._quit()
 
     def _on_gui_error(self, exc, val, tb) -> None:
         """Log an unhandled GUI-callback error and show a dialog instead of dying."""
